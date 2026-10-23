@@ -1,0 +1,41 @@
+
+name: Build Rihan's Daily Reminder APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'RihansDailyReminder-Android-Project.zip'
+      - '.github/workflows/build-apk.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Extract Android project
+        run: |
+          unzip -o RihansDailyReminder-Android-Project.zip
+          test -f RihansDailyReminder/settings.gradle.kts
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Build APK
+        run: gradle -p RihansDailyReminder assembleDebug
+
+      - name: Save APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Rihans-Daily-Reminder-APK
+          path: RihansDailyReminder/app/build/outputs/apk/debug/*.apk
